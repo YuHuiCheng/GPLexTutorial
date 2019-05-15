@@ -1,0 +1,14 @@
+// Parser Conflict Information for grammar file "parser1.y - 2019/5/15 11:41:19"
+
+Shift/Reduce conflict on symbol "IDENTIFIER", parser will shift
+ Reduce 38:	VariableModifiers -> /* empty */
+ Shift "IDENTIFIER":	State-32 -> State-93
+  Items for From-state State 32
+    55 BlockStatements_opt: BlockStatements .
+	-lookahead: '}'
+    57 BlockStatements: BlockStatements . BlockStatement 
+  Items for Next-state State 93
+    73 ExpressionName: IDENTIFIER .
+	-lookahead: '='
+
+// End conflict information for parser

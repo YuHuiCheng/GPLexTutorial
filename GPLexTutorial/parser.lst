@@ -1,0 +1,500 @@
+
+// ==========================================================================
+//  GPPG error listing for yacc source file <parser.y - 25/03/2019 11:19:19 AM>
+// ==========================================================================
+//  Version:  1.5.2
+//  Machine:  JARVIS
+//  DateTime: 25/03/2019 11:19:22 AM
+//  UserName: David
+// ==========================================================================
+
+
+%namespace GPLexTutorial
+
+%union
+{
+    public int num;
+    public string name;
+	public string keywords;
+	public string stri;
+	public string operato;
+	public string assignment;
+	public string separator;
+	public string character;
+	public string Boolean_Literal;
+	public string Null_literal;
+	public string Dec_Int_Literal;
+	public string Bin_Int_Literal;
+	public string Oct_Int_Literal;
+	public string Hex_Int_Literal;
+
+}
+
+
+
+
+%token <num> NUMBER
+%token <name> IDENTIFIER
+%token <keywords> IF ELSE INT BOOL ABSTRACT ASSERT BOOLEAN BREAK BYTE CASE CATCH CHAR CLASS CONST CONTINUE DEFAULT 
+DO DOUBLE ENUM EXTENDS FINAL FINALLY FLOAT FOR GOTO IMPLEMENTS IMPORT INSTANCEOF INTERFACE LONG NATIVE 
+NEW PACKAGE PRIVATE PROTECTED PUBLIC RETURN SHORT STATIC STRICTFP SUPER SWITCH SYNCHRONIZED THIS THROW 
+THROWS TRANSIENT TRY VOID VOLATILE WHILE _
+%token <stri> STRINGL
+%token <operato> OPERATOR
+%token <assignment> ASSIGNMENT
+%token <separator> SEPARATOR
+%token <character> CHARACTERL
+%token <Boolean_Literal> TRUE FALSE
+%token <Null_literal> NULL
+%token <Dec_Int_Literal> DEC_INT_LITERAL
+%token <Bin_Int_Literal> BIN_INT_LITERAL
+%token <Oct_Int_Literal> OCT_INT_LITERAL
+%token <Hex_Int_Literal> HEX_INT_LITERAL
+
+
+
+
+
+%left '='
+%nonassoc '<'
+%nonassoc '>'
+%left '+'
+
+%%
+// Error: NonTerminal symbol "Identifier" has no productions
+// Error: NonTerminal symbol "Int" has no productions
+// Warning: Terminating Int fixes the following size-1 NonTerminal set
+   // {Int}
+// Error: There are 14 non-terminating NonTerminal Symbols
+   //  {ClassBodyDeclaration, ClassMemberDeclaration, MethodDeclaration, 
+   //     MethodHeader, MethodDeclarator, Identifier, Statement, Int, 
+   //     StatementWithoutTrailingSubstatement, ExpressionStatement, 
+   //     StatementExpression, Assignment, LeftHandSide, ExpressionName}
+// Warning: Terminating Identifier fixes the following size-13 NonTerminal set
+   // {ClassBodyDeclaration, ClassMemberDeclaration, MethodDeclaration, 
+   //     MethodHeader, MethodDeclarator, Identifier, Statement, 
+   //     StatementWithoutTrailingSubstatement, ExpressionStatement, 
+   //     StatementExpression, Assignment, LeftHandSide, ExpressionName}
+// ---------------------------------------------------------------------------
+
+Program 
+	: CompilationUnit
+    ;
+
+CompilationUnit
+	: OrdinaryCompilationUnit 
+	;
+
+OrdinaryCompilationUnit
+	: PackageDeclaration_opt ImportDeclarations TypeDeclarations
+	;
+
+PackageDeclaration_opt
+	: /*empty*/
+	;
+
+ImportDeclarations
+	: /*empty*/
+	;
+
+TypeDeclarations
+	: /*empty*/
+	| TypeDeclaration TypeDeclarations
+	;
+
+TypeDeclaration
+	: ClassDeclaration
+	;
+
+ClassDeclaration
+	: NormalClassDeclaration
+	;
+
+
+/*NormalClassDeclaration*/
+
+NormalClassDeclaration
+	: ClassModifiers CLASS TypeIdentifier TypeParameters_opt Superclass_opt Superinterfaces_opt ClassBody
+ 	;
+
+ClassModifiers
+	: /*empty*/
+	| ClassModifier ClassModifiers
+	;
+
+ClassModifier
+	: PUBLIC
+	;
+
+TypeIdentifier
+	: IDENTIFIER
+	;
+
+TypeParameters_opt
+	: /*empty*/
+	;
+
+Superclass_opt
+	: /*empty*/
+	;
+
+Superinterfaces_opt
+	: /*empty*/
+	;
+
+
+
+
+/*ClassBody*/
+
+ClassBody
+	: '{' ClassBodyDeclarations '}'
+    ;
+
+ClassBodyDeclarations
+    : /*empty*/
+    | ClassBodyDeclaration ClassBodyDeclarations
+    ;
+
+ClassBodyDeclaration
+    : ClassMemberDeclaration
+    ;
+
+ClassMemberDeclaration
+    : MethodDeclaration
+    ;
+
+
+
+/*MethodDeclaration*/
+
+MethodDeclaration
+    : MethodModifiers MethodHeader MethodBody
+    ;
+
+MethodModifiers
+    : /*empty*/
+    | MethodModifier MethodModifiers
+    ;
+
+MethodModifier
+    : PUBLIC
+    | STATIC
+    ;
+
+
+
+/*MethodHeader*/
+
+MethodHeader
+    : Result MethodDeclarator Throws_opt
+    ;
+
+Result
+    : VOID
+    ;
+
+Throws_opt
+    : /*empty*/
+    ;
+
+
+
+/*MethodDeclarator*/
+
+MethodDeclarator
+    : Identifier '(' ReceiverParameter_opt FormalParameterList_opt ')' Dims_opt
+    ;
+
+ReceiverParameter_opt
+    : /*empty*/
+    ;
+
+Dims_opt
+    : /*empty*/
+    ;
+
+
+
+/*FormalParameterList_opt*/
+
+FormalParameterList_opt
+	: /*empty*/
+    | FormalParameterList
+    ;
+
+
+FormalParameterList
+    : FormalParameter 
+	;
+
+/*FormalParameter*/
+
+FormalParameter
+    : VariableModifiers UnannType VariableDeclaratorId
+    ;
+
+VariableModifiers
+    : /*empty*/
+    ;
+
+VariableDeclaratorId
+    : Identifier Dims_opt
+    ;
+
+UnannType
+    : UnannReferenceType
+    | UnannPrimitiveType
+    ;
+
+UnannPrimitiveType
+    : NumericType
+    ;
+
+NumericType
+    : IntegralType
+    ;
+
+IntegralType
+    : INT
+    ;
+
+UnannReferenceType
+	: UnannArrayType
+	;
+
+UnannArrayType
+    : UnannClassOrInterfaceType Dims
+    ;
+
+UnannClassOrInterfaceType
+    : UnannClassType
+    ;
+
+UnannClassType
+    : TypeIdentifier TypeArguments_opt
+    ;
+
+TypeArguments_opt
+    : /*empty*/
+    ;
+
+Dims
+    : Annotations '[' ']' Annotation_opt
+    ;
+
+Annotations
+    : /*empty*/
+    ;
+
+Annotation_opt
+    : /*empty*/
+    ;
+
+
+
+
+/*MethodBody*/
+
+MethodBody
+    : Block
+    ;
+
+Block
+    : '{' BlockStatements_opt '}'
+    ;
+
+BlockStatements_opt
+    : BlockStatements
+    ;
+
+BlockStatements
+    : /*empty*/
+    | BlockStatement BlockStatements
+    ;
+
+BlockStatement
+    : LocalVariableDeclarationStatement
+    | Statement
+    ;
+
+LocalVariableDeclarationStatement
+    : LocalVariableDeclaration ';'
+    ;
+
+LocalVariableDeclaration
+    : VariableModifiers LocalVariableType VariableDeclaratorList
+    ;
+
+
+VariableDeclaratorList
+    : VariableDeclarator VariableDeclarators
+    ;
+
+VariableDeclarators
+    : /*empty*/
+    ;
+
+VariableDeclarator
+    : VariableDeclaratorId VariableInitializer_opt
+    ;
+
+VariableDeclaratorId
+    : IDENTIFIER Dims_opt
+    ;
+
+VariableInitializer_opt
+    : /*empty*/
+    ;
+
+
+
+
+
+/*LocalVariableType*/
+
+LocalVariableType
+    : UnannType
+    ;
+
+UnannType
+	: UnannPrimitiveType
+	;
+
+UnannPrimitiveType
+	: NumericType
+	;
+
+NumericType
+	: IntegralType
+	;
+
+IntegralType
+	: Int
+	;
+
+
+
+
+/*BlockStatements*/
+
+BlockStatements
+	: BlockStatement
+	;
+
+Statement
+	: StatementWithoutTrailingSubstatement
+	;
+
+StatementWithoutTrailingSubstatement
+	: ExpressionStatement
+	;
+
+ExpressionStatement
+	: StatementExpression ';'
+	;
+
+StatementExpression
+	: Assignment
+	;
+
+Assignment
+	: LeftHandSide AssignmentOperator Expression
+	;
+
+LeftHandSide
+	: ExpressionName
+	;
+
+ExpressionName
+	: Identifier
+	;
+
+AssignmentOperator 
+	: '='
+	;
+
+Expression
+	: AssignmentExpression
+	;
+
+AssignmentExpression
+	: ConditionalExpression
+	;
+
+ConditionalExpression
+	:ConditionalOrExpression
+	;
+
+ConditionalOrExpression
+	:ConditionalAndExpression
+	;
+
+ConditionalAndExpression
+	:InclusiveOrExpression
+	;
+
+InclusiveOrExpression
+	:ExclusiveOrExpression
+	;
+
+ExclusiveOrExpression
+	:AndExpression
+	;
+
+AndExpression
+	:EqualityExpression
+	;
+
+EqualityExpression
+	:RelationalExpression
+	;
+
+RelationalExpression
+	:ShiftExpression
+	;
+
+ShiftExpression
+	:AdditiveExpression
+	;
+
+AdditiveExpression
+	:MultiplicativeExpression
+	;
+
+MultiplicativeExpression
+	:UnaryExpression
+	;
+
+UnaryExpression
+	:UnaryExpressionNotPlusMinus
+	;
+
+UnaryExpressionNotPlusMinus
+	:PostfixExpression
+	;
+
+PostfixExpression
+	:Primary
+	;
+
+Primary
+	:PrimaryNoNewArray
+	;
+
+PrimaryNoNewArray
+	:Literal
+	;
+
+Literal
+	: DEC_INT_LITERAL
+	;
+
+
+%%
+
+public Parser(Scanner scanner) : base(scanner)
+{
+}
+// ==========================================================================
+

@@ -1,0 +1,537 @@
+﻿%namespace GPLexTutorial
+
+%union
+{
+	
+	public int num;
+	public string name;
+	public string keywords;
+	public string stri;
+	public string operato;
+	public string assignment;
+	public string separator;
+	public string character;
+	public string Boolean_Literal;
+	public string Null_literal;
+	public int Int_Literal;
+	public string Dec_FPL;
+	public string Hex_FPL;
+
+	public AST.CompilationUnit comp;
+	public AST.Node node;
+	public AST.Declaration dec;
+	public AST.VariableDeclarator declarator;
+	public AST.FormalParameterDeclaration formalDec;
+	public System.Collections.Generic.List<AST.Declaration> decList;
+	public System.Collections.Generic.List<AST.VariableDeclarator> declaratorList;
+	public System.Collections.Generic.List<AST.FormalParameterDeclaration> formalDecList;
+	public AST.Statement stmt;
+	public System.Collections.Generic.List<AST.Statement> stmtList;
+	public AST.Expression expr;
+	public AST.Type typ;
+	public AST.NamedType nametyp;
+	public AST.Modifier mod;
+	public System.Collections.Generic.List<AST.Modifier> modList;
+	public AST.MethodDeclaration mtdDec;
+	public AST.Block block;
+}
+
+
+
+
+%token <num> NUMBER
+%token <name> IDENTIFIER
+%token <keywords> IF ELSE INT BOOL ABSTRACT ASSERT BOOLEAN BREAK BYTE CASE CATCH CHAR CLASS CONST CONTINUE DEFAULT 
+DO DOUBLE ENUM EXTENDS FINAL FINALLY FLOAT FOR GOTO IMPLEMENTS IMPORT INSTANCEOF INTERFACE LONG NATIVE 
+NEW PACKAGE PRIVATE PROTECTED PUBLIC RETURN SHORT STATIC STRICTFP SUPER SWITCH SYNCHRONIZED THIS THROW 
+THROWS TRANSIENT TRY VOID VOLATILE WHILE _
+%token <stri> STRINGL
+%token <operato> OPERATOR
+%token <assignment> ASSIGNMENT
+%token <separator> SEPARATOR
+%token <character> CHARACTERL
+%token <Boolean_Literal> TRUE FALSE
+%token <Null_literal> NULL
+%token <Int_Literal> INT_LITERAL
+%token <Dec_FPL> DEC_FPL
+%token <Hex_FPL> HEX_FPL
+
+
+%type <comp> CompilationUnit
+%type <comp> OrdinaryCompilationUnit
+%type <decList> TypeDeclarations
+%type <dec> TypeDeclaration
+%type <dec> ClassDeclaration
+%type <dec> NormalClassDeclaration 
+%type <modList> ClassModifiers
+%type <mod> ClassModifier
+%type <name> TypeIdentifier
+%type <decList> ClassBody
+%type <decList> ClassBodyDeclarations
+%type <dec> ClassBodyDeclaration
+%type <dec> ClassMemberDeclaration
+%type <mtdDec> MethodDeclaration
+%type <modList> MethodModifiers
+%type <mod> MethodModifier
+%type <mtdDec> MethodHeader
+%type <typ> Result
+%type <mtdDec> MethodDeclarator
+%type <formalDecList> FormalParameterList_opt
+%type <formalDecList> FormalParameterList
+%type <formalDec> FormalParameter
+%type <name> VariableDeclaratorId
+%type <typ> LocalVariableType
+%type <typ> UnannType
+%type <typ> UnannPrimitiveType
+%type <typ> NumericType
+%type <typ> IntegralType
+%type <typ> UnannReferenceType
+%type <typ> UnannArrayType
+%type <typ> UnannClassOrInterfaceType
+%type <typ> UnannClassType
+/*%type <> Dims */
+%type <block> MethodBody
+%type <block> Block
+%type <stmtList> BlockStatements_opt
+%type <stmtList> BlockStatements
+%type <stmt> BlockStatement
+%type <stmt> LocalVariableDeclarationStatement
+%type <stmt> LocalVariableDeclaration
+%type <declaratorList> VariableDeclaratorList
+%type <declaratorList> VariableDeclarators
+%type <declarator> VariableDeclarator
+%type <stmt> Statement
+%type <stmt> StatementWithoutTrailingSubstatement
+%type <stmt> ExpressionStatement
+%type <expr> StatementExpression
+%type <expr> Assignment
+%type <expr> LeftHandSide
+%type <name> ExpressionName
+%type <name> AssignmentOperator
+%type <expr> Expression
+%type <expr> AssignmentExpression
+%type <expr> ConditionalExpression
+%type <expr> ConditionalOrExpression
+%type <expr> ConditionalAndExpression
+%type <expr> InclusiveOrExpression
+%type <expr> ExclusiveOrExpression
+%type <expr> AndExpression
+%type <expr> EqualityExpression
+%type <expr> RelationalExpression
+%type <expr> ShiftExpression
+%type <expr> AdditiveExpression
+%type <expr> MultiplicativeExpression
+%type <expr> UnaryExpression
+%type <expr> UnaryExpressionNotPlusMinus
+%type <expr> PostfixExpression
+%type <expr> Primary
+%type <expr> PrimaryNoNewArray
+%type <expr> Literal
+
+%type <expr> VariableInitializer_opt
+%%
+
+CompilationUnit
+	: OrdinaryCompilationUnit													{ Root = $1; }
+	;
+
+OrdinaryCompilationUnit
+	: PackageDeclaration_opt ImportDeclarations TypeDeclarations				{ $$ = new AST.CompilationUnit($3); }
+	;
+
+PackageDeclaration_opt
+	: /*empty*/																	 
+	;
+
+ImportDeclarations
+	: /*empty*/																	 
+	;
+
+
+
+TypeDeclarations
+    : TypeDeclaration TypeDeclarations		{ $$ = new  System.Collections.Generic.List<AST.Declaration> (); $$.Add($1); $$.AddRange($2); }
+	| /*empty*/					{ $$ = new  System.Collections.Generic.List<AST.Declaration> (); }										
+	;
+
+TypeDeclaration
+	: ClassDeclaration															/* { $$ = $1; } */
+	;
+
+ClassDeclaration
+	: NormalClassDeclaration													{ $$ = $1; }
+	;
+
+
+/*NormalClassDeclaration*/
+
+NormalClassDeclaration
+	: ClassModifiers CLASS TypeIdentifier TypeParameters_opt Superclass_opt Superinterfaces_opt ClassBody		{ $$ = new AST.ClassDeclaration($1, $3, $7); }
+	;
+
+ClassModifiers
+	:  ClassModifiers ClassModifier { $$ = $1; $$.Add($2);}
+	| /*empty*/						{ $$ = new  List<AST.Modifier> (); }												
+	;
+
+ClassModifier
+	: PUBLIC													{$$ =  AST.Modifier.Public;}															 
+	;
+	 
+TypeIdentifier
+	: IDENTIFIER												{ $$ = $1; }
+	;
+
+TypeParameters_opt
+	: /*empty*/
+	;
+
+Superclass_opt
+	: /*empty*/
+	;
+
+Superinterfaces_opt
+	: /*empty*/
+	;
+
+
+
+
+/*ClassBody*/
+
+ClassBody
+	: '{' ClassBodyDeclarations '}'							{ $$ = $2; }
+	;
+
+ClassBodyDeclarations
+	: /*empty*/												{ $$ = new System.Collections.Generic.List<AST.Declaration>(); }
+	| ClassBodyDeclaration ClassBodyDeclarations			{ $$ = $2; $2.Add($1); }
+	;
+
+ClassBodyDeclaration
+	: ClassMemberDeclaration								{ $$ = $1; }
+	;
+
+ClassMemberDeclaration
+	: MethodDeclaration										{ $$ = $1; }
+	;
+
+
+
+/*MethodDeclaration*/
+
+MethodDeclaration
+	: MethodModifiers MethodHeader MethodBody				{ $$ = $2; $2.SetModifier($1);$2.SetMethodBody($3); }
+	;
+
+MethodModifiers
+	: /*empty*/												{ $$ = new System.Collections.Generic.List<AST.Modifier>(); }
+	| MethodModifier MethodModifiers						{ $$ = $2; $2.Add($1); }
+	;
+
+MethodModifier
+	: PUBLIC												{ $$ = AST.Modifier.Public; }
+	| STATIC												{ $$ = AST.Modifier.Static; }
+	;
+
+
+
+
+/*MethodHeader*/
+/*Cheng YuHui   n10047051*/
+MethodHeader
+    : Result MethodDeclarator Throws_opt                                   {$$ = $2; $2.SetReturnType($1); }	
+    ;
+/*Cheng YuHui   n10047051*/
+Result
+    : VOID																	{$$ = new AST.NamedType($1);}
+    ;
+/*Cheng YuHui   n10047051*/
+Throws_opt																	
+    : /*empty*/
+    ;
+
+
+
+/*MethodDeclarator*/
+/*Cheng YuHui   n10047051*/
+MethodDeclarator
+    : IDENTIFIER '(' ReceiverParameter_opt FormalParameterList_opt ')' Dims_opt				{$$ = new AST.MethodDeclaration(null, null, $1, $4, null);}
+    ;
+/*Cheng YuHui   n10047051*/
+ReceiverParameter_opt
+    : /*empty*/
+    ;
+/*Cheng YuHui   n10047051*/
+Dims_opt
+    : /*empty*/
+    ;
+
+
+
+/*FormalParameterList_opt*/
+/*Cheng YuHui   n10047051*/
+FormalParameterList_opt
+	: /*empty*/																{$$ = new System.Collections.Generic.List<AST.FormalParameterDeclaration>();}
+    | FormalParameterList													{$$ = $1;}
+    ;
+
+/*Cheng YuHui   n10047051*/
+FormalParameterList
+    : FormalParameter														{$$ = new System.Collections.Generic.List<AST.FormalParameterDeclaration>(); $$.Add($1);}
+	;
+
+/*FormalParameter*/
+/*Cheng YuHui   n10047051*/
+FormalParameter
+    : VariableModifiers UnannType VariableDeclaratorId						{$$ = new AST.FormalParameterDeclaration($2,$3);}
+    ;
+/*Cheng YuHui   n10047051*/
+VariableModifiers
+    : /*empty*/															
+    ;
+/*Cheng YuHui   n10047051*/
+VariableDeclaratorId
+    : IDENTIFIER Dims_opt												{$$ = $1;}
+    ;
+/*Cheng YuHui   n10047051*/
+UnannType
+    : UnannReferenceType										{$$ = $1;}
+    | UnannPrimitiveType										{$$ = $1;}
+    ;
+
+UnannPrimitiveType
+	: NumericType												{$$ = $1;}
+	;
+
+NumericType
+	: IntegralType												{$$ = $1;}
+	;
+
+IntegralType
+	: INT														{$$ = new AST.PrimitiveType(AST.Primitive.Int);}
+	;
+
+UnannReferenceType
+	: UnannArrayType											{$$ = $1;}
+	;
+
+UnannArrayType
+	: UnannClassOrInterfaceType Dims							{$$ = new AST.ArrayType($1);}
+	;
+
+UnannClassOrInterfaceType
+	: UnannClassType											{$$ = $1;}
+	;
+
+UnannClassType
+	: TypeIdentifier TypeArguments_opt							{$$ = new AST.NamedType ($1);}
+	;
+
+TypeArguments_opt
+	: /*empty*/
+	;
+
+Dims
+	: Annotations '[' ']' Annotation_opt
+	;
+
+Annotations
+	: /*empty*/
+	;
+
+Annotation_opt
+	: /*empty*/
+	;
+
+
+
+
+/*MethodBody*/
+
+MethodBody
+	: Block											{$$ = $1;}
+	;
+
+Block
+	: '{' BlockStatements_opt '}'					{$$ = new AST.Block($2);}
+	;
+
+BlockStatements_opt
+	: BlockStatements								{$$ = $1;}
+	;
+
+BlockStatements
+	: /*empty*/											{$$ = new System.Collections.Generic.List<AST.Statement>(); }
+	| BlockStatements BlockStatement					{$$ = $1; $1.Add($2);}
+	;
+
+BlockStatement
+	: LocalVariableDeclarationStatement					{$$ = $1;}
+	| Statement											{$$ = $1;}
+	;
+
+LocalVariableDeclarationStatement
+	: LocalVariableDeclaration ';'						{$$ = $1;}
+	;
+
+LocalVariableDeclaration
+	: VariableModifiers LocalVariableType VariableDeclaratorList	{$$ = new AST.VariableDeclarationStatement($2,$3);}							
+	;
+
+
+VariableDeclaratorList
+	: VariableDeclarator VariableDeclarators				{$$ = $2; $2.Add($1);}
+	;
+
+VariableDeclarators
+	: /*empty*/												{$$ = new System.Collections.Generic.List<AST.VariableDeclarator>(); }
+	;
+
+VariableDeclarator
+	: VariableDeclaratorId VariableInitializer_opt			{$$ = new AST.VariableDeclarator($1,$2);}	
+	;
+
+VariableInitializer_opt
+	: /*empty*/
+	;
+
+
+
+
+
+/*LocalVariableType*/
+
+LocalVariableType
+	: UnannType												{$$ = $1;}
+	;
+
+	
+/*BlockStatements*/
+
+
+Statement
+	: StatementWithoutTrailingSubstatement				{$$ = $1;}
+	;
+
+StatementWithoutTrailingSubstatement
+	: ExpressionStatement								{$$ = $1;}
+	;
+
+ExpressionStatement
+	: StatementExpression ';'							{$$ = new AST.ExpressionStatement($1);}
+	;
+
+StatementExpression
+
+	: Assignment										{$$ = $1;}			
+	;
+
+Assignment
+	: LeftHandSide AssignmentOperator Expression		{$$ = new AST.AssignmentExpression($1, $2, $3);}
+	;
+
+LeftHandSide
+	: ExpressionName									{$$ = new AST.IdentifierExpression($1);}
+	;
+
+
+
+
+
+ExpressionName											
+	: IDENTIFIER											{$$ = $1;}
+	;
+
+AssignmentOperator 
+	: '='													{$$ = "=";}
+	;
+
+Expression
+	: AssignmentExpression									{$$ = $1;}
+	;
+
+AssignmentExpression
+	: ConditionalExpression									{$$ = $1;}
+	;
+
+ConditionalExpression
+	:ConditionalOrExpression								{$$ = $1;}
+	;
+
+ConditionalOrExpression
+	:ConditionalAndExpression								{$$ = $1;}
+	;
+
+ConditionalAndExpression
+	:InclusiveOrExpression									{$$ = $1;}
+	;
+
+InclusiveOrExpression
+	:ExclusiveOrExpression									{$$ = $1;}
+	;
+
+ExclusiveOrExpression
+	:AndExpression											{$$ = $1;}
+	;
+
+AndExpression
+	:EqualityExpression										{$$ = $1;}
+	;
+
+EqualityExpression
+	:RelationalExpression									{$$ = $1;}
+	;
+
+
+/* 
+ * @willRoundDream
+ * Shaowei, Liang (n10051813)
+*/
+RelationalExpression
+	:ShiftExpression				{$$ = $1;}
+	;
+
+ShiftExpression
+	:AdditiveExpression				{$$ = $1;}
+	;
+
+AdditiveExpression
+	:MultiplicativeExpression		{$$ = $1;}
+	;
+
+MultiplicativeExpression
+	:UnaryExpression				{$$ = $1;}
+	;
+
+UnaryExpression
+	:UnaryExpressionNotPlusMinus	{$$ = $1;}
+	;
+
+UnaryExpressionNotPlusMinus
+	:PostfixExpression				{$$ = $1;}
+	;
+
+PostfixExpression
+	:Primary						{$$ = $1;}
+	;
+
+Primary
+	:PrimaryNoNewArray				{$$ = $1;}
+	;
+
+PrimaryNoNewArray
+	:Literal						{$$ = $1;}
+	;
+
+Literal
+	: INT_LITERAL					{$$ = new AST.IntegerLiteralExpression($1);}
+	;
+
+
+%%
+public AST.Node Root { get; set; }
+
+public Parser(Scanner scanner) : base(scanner)
+{
+}
